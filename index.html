@@ -1,0 +1,504 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Nature's Professional</title>
+    
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=Playfair+Display:ital,wght@0,400;0,600;1,400&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        body {
+            background-color: #e8ffde; 
+            color: #0F0F0F;
+            font-family: 'Inter', sans-serif;
+            height: 400vh; 
+            overflow-x: hidden; 
+            overflow-y: scroll;
+        }
+
+        /* --- STYLES FOR OPEN.JPG (BLUR OUT) --- */
+        .intro-opener {
+            position: fixed;
+            inset: 0;
+            z-index: 20000; 
+            background-color: #F0F6E6;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            transition: opacity 1.5s ease, filter 1.5s ease;
+            width: 100vw;
+            height: 100vh;
+            opacity: 1;
+            filter: blur(0px);
+        }
+
+        .intro-opener img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        .intro-opener.fade-out {
+            opacity: 0;
+            filter: blur(20px);
+            pointer-events: none;
+        }
+        /* --------------------------------------------- */
+
+        .landing-overlay {
+            position: fixed;
+            inset: 0;
+            background: transparent; 
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 9999; 
+            overflow: hidden;
+            pointer-events: none; 
+        }
+
+        .landing-overlay img {
+            width: 100vw;
+            height: 100vh;
+            object-fit: cover;
+            transform: scale(1);
+            transform-origin: center top; 
+            transition: transform 2s cubic-bezier(0.4, 0, 0.2, 1) 0.2s, opacity 2s ease 1s;
+        }
+
+        body.loaded .landing-overlay img { transform: scale(6); opacity: 0; }
+
+        .product-layer {
+            position: fixed; 
+            inset: 0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 1010; 
+            pointer-events: none;
+        }
+
+        .product-container {
+            position: relative;
+            width: 100%;
+            height: 100%;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            will-change: transform, opacity;
+        }
+
+        .main-product-wrapper {
+            position: relative;
+            width: 600px;
+            height: 600px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 5; 
+            margin-top: -20px; 
+            transform-origin: center center;
+        }
+
+        .product-part {
+            position: absolute;
+            width: 100%;
+            object-fit: contain;
+            opacity: 0;
+        }
+
+        .lid { z-index: 2; }
+        .vial { z-index: 1; }
+
+        body.loaded .lid { animation: slideFromTop 1.5s cubic-bezier(0.22, 1, 0.36, 1) 0.5s forwards; }
+        body.loaded .vial { animation: slideFromBottom 1.5s cubic-bezier(0.22, 1, 0.36, 1) 0.5s forwards; }
+
+        @keyframes slideFromTop {
+            0% { transform: translateY(-150vh); opacity: 0; }
+            100% { transform: translateY(-120px); opacity: 1; }
+        }
+
+        @keyframes slideFromBottom {
+            0% { transform: translateY(150vh); opacity: 0; }
+            100% { transform: translateY(15px); opacity: 1; }
+        }
+
+        .features-container {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            top: 0;
+            left: 0;
+            pointer-events: none;
+            z-index: 1;
+        }
+
+        .feature-item {
+            position: absolute;
+            width: 280px;
+            text-align: center;
+            opacity: 0;
+            transition: opacity 0.5s ease; 
+            will-change: transform, opacity;
+        }
+
+        .feature-img { width: 130px; height: 130px; border-radius: 50%; margin: 0 auto 15px; display: block; object-fit: cover; }
+        .feature-title { font-size: 24px; font-weight: 500; margin-bottom: 8px; color: #000; }
+        .feature-desc { font-size: 14px; line-height: 1.4; color: #1a1a1a; padding: 0 10px; }
+
+        .pos-aloe { top: 15%; left: 15%; }
+        .pos-squalane { top: 15%; right: 15%; }
+        .pos-vit-e { bottom: 15%; left: 20%; }
+        .pos-green-tea { bottom: 15%; right: 20%; }
+        .pos-shea { bottom: 5%; left: 50%; transform: translateX(-50%); } 
+
+        .hand-layout-section {
+            position: fixed;
+            inset: 0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 1005;
+            opacity: 0;
+            pointer-events: none;
+            background-color: #FFFFFF;
+            transition: opacity 0.5s ease;
+        }
+
+        .hand-container {
+            position: relative;
+            width: 100%;
+            max-width: 1250px;
+            height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 0 50px;
+        }
+
+        .hand-features-left { display: flex; flex-direction: column; gap: 40px; z-index: 10; width: 420px; }
+
+        .hand-feature {
+            display: flex;
+            align-items: center;
+            gap: 20px;
+            text-align: left;
+            opacity: 0;
+            transform: translateX(-50px);
+            transition: all 0.8s cubic-bezier(0.25, 1, 0.5, 1);
+        }
+
+        .hand-feature.reverse { flex-direction: row-reverse; text-align: right; transform: translateX(-50px); }
+        .hand-features-left.active .hand-feature { opacity: 1; transform: translateX(0); }
+
+        .hand-feature-icon {
+            width: 80px; height: 80px; flex-shrink: 0; background: white; border-radius: 50%; padding: 5px;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.05); display: flex; justify-content: center; align-items: center;
+        }
+
+        .hand-feature-icon img { width: 100%; height: 100%; border-radius: 50%; object-fit: cover; }
+        .hand-feature-text h3 { font-size: 22px; font-weight: 600; margin-bottom: 4px; color: #1a4d2e; }
+        .hand-feature-text p { font-size: 14px; color: #555; line-height: 1.5; max-width: 300px; }
+
+        .hand-image-wrapper {
+            position: absolute;
+            right: 0;
+            top: 55%;
+            transform: translateY(-50%);
+            width: 60%;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .hand-img { width: 85%; max-width: 750px; object-fit: contain; z-index: 1; }
+
+        .section-three-bg {
+            position: fixed;
+            inset: 0;
+            z-index: 1006;
+            opacity: 0;
+            pointer-events: none;
+            background-image: url('section3.png');
+            background-size: cover;
+            background-position: center;
+            background-repeat: no-repeat;
+            transition: opacity 0.1s linear;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: flex-start; 
+        }
+
+        .section-three-content {
+            margin-top: 15vh;
+            text-align: center;
+            z-index: 1007;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 20px;
+            width: 100%;
+        }
+
+        .s3-title {
+            font-family: 'Playfair Display', serif;
+            font-size: 4vw; 
+            color: #1a4d2e; 
+            font-weight: 600;
+            letter-spacing: 1px;
+            line-height: 1.2;
+            text-transform: uppercase;
+        }
+
+        .s3-subtitle {
+            font-family: 'Inter', sans-serif;
+            font-size: 1.3rem;
+            color: #2c5c3e;
+            font-weight: 400;
+            margin-bottom: 10px;
+        }
+
+        .s3-btn {
+            background: #ffffff;
+            color: #000;
+            border: none;
+            padding: 15px 40px;
+            font-family: 'Playfair Display', serif;
+            font-size: 1.1rem;
+            letter-spacing: 1px;
+            cursor: pointer;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+            text-transform: uppercase;
+        }
+
+        .s3-btn:hover { 
+            transform: translateY(-3px); 
+            box-shadow: 0 6px 20px rgba(0,0,0,0.15);
+        }
+
+        header {
+            display: flex; align-items: flex-start; padding: 25px 50px; width: 100%; position: fixed; 
+            top: 0; left: 0; z-index: 1020; background: transparent;
+        }
+
+        nav { flex: 1; display: flex; justify-content: flex-start; }
+        .nav-links { display: flex; gap: 30px; list-style: none; padding-top: 10px; }
+        .nav-links a { text-decoration: none; color: #1a1a1a; font-size: 13px; font-weight: 500; text-transform: uppercase; }
+
+        .brand-logo { text-align: center; display: flex; flex-direction: column; align-items: center; flex-shrink: 0; }
+        .brand-title { font-family: 'Playfair Display', serif; font-size: 26px; color: #1a1a1a; line-height: 1; }
+        .brand-subtitle { font-family: 'Inter', sans-serif; font-size: 10px; text-transform: uppercase; letter-spacing: 2px; }
+
+        .header-icons { flex: 1; display: flex; justify-content: flex-end; gap: 25px; padding-top: 8px; }
+        .header-icons i { font-size: 20px; color: #1a1a1a; cursor: pointer; }
+
+        main { position: fixed; inset: 0; display: flex; justify-content: center; align-items: center; z-index: 5; pointer-events: none; }
+        
+        /* UPDATED HERO TEXT STYLES */
+        .hero-text { 
+            font-family: 'Playfair Display', serif; 
+            font-size: 11vw; 
+            color: #cbd7d0; 
+            text-transform: uppercase; 
+            /* Added transition for the color change */
+            transition: color 1s ease; 
+        }
+
+        /* Class to force black color initially */
+        .hero-text.start-black {
+            color: #000000;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="intro-opener" id="introOpener">
+        <img src="open.jpg" alt="Welcome">
+    </div>
+
+    <div class="landing-overlay"><img src="aloe.png" alt="Aloe Vera"></div>
+
+    <div class="product-layer" id="section1">
+        <div class="product-container" id="productContainer">
+            <div class="main-product-wrapper" id="productWrapper">
+                <img src="lib.png" alt="Lid" class="product-part lid">
+                <img src="vial.png" alt="Body" class="product-part vial">
+            </div>
+            <div class="features-container">
+                <div class="feature-item pos-aloe"><img src="image1.jpg" class="feature-img"><h3 class="feature-title">Aloe vera Extract</h3><p class="feature-desc">Soothes irritated skin, delivers deep hydration, and helps maintain long-lasting freshness.</p></div>
+                <div class="feature-item pos-squalane"><img src="image2.jpg" class="feature-img"><h3 class="feature-title">Peppermint Oil</h3><p class="feature-desc">Provides instant freshness and revitalizing feel without skin irritation.</p></div>
+                <div class="feature-item pos-vit-e"><img src="image3.jpg" class="feature-img"><h3 class="feature-title">Vitamin E</h3><p class="feature-desc">Protects skin from environmental damage while supporting repair and improving overall skin health.</p></div>
+                <div class="feature-item pos-green-tea"><img src="image4.jpg" class="feature-img"><h3 class="feature-title">Allantoin</h3><p class="feature-desc">Calms sensitive skin, reduces irritation, and supports natural skin healing and comfort.</p></div>
+                <div class="feature-item pos-shea"><img src="image5.jpg" class="feature-img"><h3 class="feature-title">Shea Butter</h3><p class="feature-desc">Deeply nourishes dry skin, strengthens the moisture barrier, and prevents moisture loss.</p></div>
+            </div>
+        </div>
+    </div>
+
+    <div class="hand-layout-section" id="section2">
+        <div class="hand-container">
+            <div class="hand-features-left" id="handFeaturesLeft">
+                <div class="hand-feature"><div class="hand-feature-icon"><img src="icon1.jpg"></div><div class="hand-feature-text"><h3>Intense Hydration</h3><p>Locks in moisture, keeping skin soft, fresh, and comfortably hydrated.</p></div></div>
+                <div class="hand-feature reverse"><div class="hand-feature-icon"><img src="icon2.jpg"></div><div class="hand-feature-text"><h3>Skin-Soothing Care</h3><p>Calms irritation, reduces redness, and comforts sensitive skin.</p></div></div>
+                <div class="hand-feature"><div class="hand-feature-icon"><img src="icon3.jpg"></div><div class="hand-feature-text"><h3>Repair & Recovery</h3><p>Supports natural skin healing and improves overall skin resilience.</p></div></div>
+                <div class="hand-feature reverse"><div class="hand-feature-icon"><img src="icon4.jpg"></div><div class="hand-feature-text"><h3>Antioxidant Defense</h3><p>Protects skin from environmental stress and early aging signs.</p></div></div>
+            </div>
+            <div class="hand-image-wrapper"><img src="hand.png" alt="Product in hand" class="hand-img"></div>
+        </div>
+    </div>
+
+    <div class="section-three-bg" id="section3Bg">
+        <div class="section-three-content">
+            <h2 class="s3-title">MOISTURIZING ALOE BEAUTY GEL</h2>
+            <p class="s3-subtitle">Simple cosmetic jar mockup, it can be downloaded</p>
+            <button class="s3-btn">BUY NOW</button>
+        </div>
+    </div>
+
+    <header>
+        <nav><ul class="nav-links"><li><a href="#">Home</a></li><li><a href="#">Shop</a></li><li><a href="#">About Us</a></li></ul></nav>
+        <div class="brand-logo"><span class="brand-title">NATURE'S</span><span class="brand-subtitle">Professional</span></div>
+        <div class="header-icons"><i class="fa-solid fa-cart-shopping"></i><i class="fa-regular fa-heart"></i><i class="fa-regular fa-circle-user"></i></div>
+    </header>
+
+    <main><h1 class="hero-text start-black" id="heroText">ALOE BEAUTY GEL</h1></main>
+
+    <script>
+    window.addEventListener("load", () => {
+        // --- 1. Text Color Logic (First 1.5 Seconds) ---
+        setTimeout(() => {
+            const hero = document.getElementById('heroText');
+            if(hero) hero.classList.remove('start-black');
+        }, 3000);
+        // ----------------------------------------------
+
+        // --- 2. Opener & Animation Sequence Logic ---
+        setTimeout(() => {
+            const opener = document.getElementById('introOpener');
+            if(opener) {
+                // Step 1: Trigger the Blur and Fade out
+                opener.classList.add('fade-out');
+                
+                // Step 2: Wait for the transition to finish (1.5s)
+                setTimeout(() => {
+                    opener.style.display = 'none'; // Remove intro from flow
+                    
+                    // Step 3: NOW start the other things (Aloe zoom, product animation)
+                    document.body.classList.add("loaded"); 
+                    
+                    // Hide the zooming aloe overlay after its animation finishes
+                    setTimeout(() => { 
+                        if(document.querySelector('.landing-overlay')) {
+                            document.querySelector('.landing-overlay').style.display = 'none'; 
+                        }
+                    }, 3000); 
+
+                }, 1500); // Wait for the CSS transition time
+            }
+        }, 1000); // Stays for 1 sec before starting fade
+    });
+
+    window.addEventListener('scroll', () => {
+        const wrapper = document.getElementById('productWrapper');
+        const featuresContainer = document.querySelector('.features-container');
+        const section2 = document.getElementById('section2');
+        const section3Bg = document.getElementById('section3Bg');
+        const handFeaturesLeft = document.getElementById('handFeaturesLeft');
+        const heroText = document.getElementById('heroText');
+        const features = document.querySelectorAll('.feature-item');
+        
+        const scrollY = window.scrollY;
+        const windowHeight = window.innerHeight;
+        
+        let progress1 = Math.min(scrollY / (windowHeight * 0.8), 1);
+        let progress2 = scrollY > windowHeight ? Math.min((scrollY - windowHeight) / windowHeight, 1) : 0;
+        let progress3 = scrollY > (windowHeight * 2) ? Math.min((scrollY - (windowHeight * 2)) / (windowHeight * 1.2), 1) : 0; 
+
+        let currentScale = 1 - (0.3 * progress1);
+        let currentY = -(110 * progress1);
+        let currentX = 0;
+        let currentRot = 0;
+
+        if (progress2 > 0) {
+            let scaleP2 = 0.7 - (0.15 * progress2); 
+            let xP2 = (12 * progress2);
+            let yP2 = -110 + (100 * progress2);
+            let rotP2 = (-10 * progress2);
+
+            currentScale = scaleP2;
+            currentX = xP2;
+            currentY = yP2;
+            currentRot = rotP2;
+            
+            if(featuresContainer) featuresContainer.style.opacity = 1 - (progress2 * 3);
+        } else if(featuresContainer) {
+            featuresContainer.style.opacity = 1;
+        }
+
+        if (progress3 > 0) {
+            let startScale = 0.55; 
+            let startX = 12; 
+            let startY = -10; 
+            let startRot = -10; 
+
+            let targetScale = 0.6; 
+            let targetX = -2;   
+            let targetY = 130; 
+            let targetRot = 2; 
+
+            currentScale = startScale + ((targetScale - startScale) * progress3);
+            currentX = startX + ((targetX - startX) * progress3);
+            currentY = startY + ((targetY - startY) * progress3);
+            currentRot = startRot + ((targetRot - startRot) * progress3);
+        }
+
+        wrapper.style.transform = `translate(${currentX}vw, ${currentY}px) rotate(${currentRot}deg) scale(${currentScale})`;
+        
+        // This opacity control still applies when scrolling, 
+        // but the initial color change is handled by the timeout above.
+        heroText.style.opacity = 1 - (progress2 * 2);
+
+        if (progress2 > 0) {
+            section2.style.opacity = progress2 - (progress3 * 2);
+            section2.style.pointerEvents = (progress2 > 0.5 && progress3 < 0.2) ? 'auto' : 'none';
+            if (progress2 > 0.3) handFeaturesLeft.classList.add('active');
+            else handFeaturesLeft.classList.remove('active');
+        } else {
+            section2.style.opacity = 0;
+            handFeaturesLeft.classList.remove('active');
+        }
+
+        if (progress3 > 0) {
+            section3Bg.style.opacity = progress3;
+            section3Bg.style.pointerEvents = progress3 > 0.8 ? 'auto' : 'none';
+        } else {
+            section3Bg.style.opacity = 0;
+            section3Bg.style.pointerEvents = 'none';
+        }
+
+        features.forEach(item => {
+            if (progress1 > 0.3 && progress2 === 0) { 
+                let fP = Math.min((progress1 - 0.3) / 0.7, 1);
+                item.style.opacity = fP;
+                const inv = 1 - fP;
+                const dist = 250;
+                if (item.classList.contains('pos-aloe')) item.style.transform = `translate(${dist*Math.pow(inv, 1.5)}px, ${dist*inv}px)`;
+                else if (item.classList.contains('pos-squalane')) item.style.transform = `translate(${-dist*Math.pow(inv, 1.5)}px, ${dist*inv}px)`;
+                else if (item.classList.contains('pos-vit-e')) item.style.transform = `translate(${dist*Math.pow(inv, 1.5)}px, ${-dist*inv}px)`;
+                else if (item.classList.contains('pos-green-tea')) item.style.transform = `translate(${-dist*Math.pow(inv, 1.5)}px, ${-dist*inv}px)`;
+                else if (item.classList.contains('pos-shea')) item.style.transform = `translateX(-50%) translateY(${-dist*inv}px)`;
+            } else if (progress2 === 0) {
+                item.style.opacity = 0;
+            }
+        });
+    });
+</script>
+</body>
+</html>
